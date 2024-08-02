@@ -1,0 +1,269 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(readr)
+library(patchwork)
+
+df <- read.csv("Data/Driving_behavior.csv")
+
+df <- na.omit(df) # delect NA
+df[df$condition == 1, c("condition_road")] <- "Straight"
+df[df$condition == 1, c("NDRT")] <- "Podcast"
+
+#df[df$condition == 1, c("condition_road")] <- "Low"
+#df[df$condition == 1, c("NDRT")] <- "Low cognitive load"
+
+df[df$condition == 2, c("condition_road")] <- "Straight"
+df[df$condition == 2, c("NDRT")] <- "Game"
+
+#df[df$condition == 2, c("condition_road")] <- "Low"
+#df[df$condition == 2, c("NDRT")] <- "High cognitive load"
+
+df[df$condition == 3, c("condition_road")] <- "Winding"
+df[df$condition == 3, c("NDRT")] <- "Podcast"
+
+#df[df$condition == 3, c("condition_road")] <- "High"
+#df[df$condition == 3, c("NDRT")] <- "Low cognitive load"
+
+df[df$condition == 4, c("condition_road")] <- "Winding"
+df[df$condition == 4, c("NDRT")] <- "Game"
+
+#df[df$condition == 4, c("condition_road")] <- "High"
+#df[df$condition == 4, c("NDRT")] <- "High cognitive load"
+df
+df
+
+```
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(magick)
+#g3_1 <- ggplot(df, aes(x = condition_road, y = Takeover_time, fill = NDRT)) +
+  #geom_bar(stat = "summary", fun = "mean", position = position_dodge(width = 0.8), width = 0.7) +
+  #geom_errorbar(stat = "summary", fun.data = "mean_se", position = position_dodge(width = 0.8), width = 0.3) +  
+  #geom_text(stat = "summary", fun.data = "mean_se", position = position_dodge(width = 0.8), vjust = -0.5, 
+            #aes(label = sprintf("Mean: %.2f\nSE: %.2f", after_stat(y), after_stat(ymax) - after_stat(y)))) +  
+  
+  #labs(title = "Takeover_time by Condition ",
+       #x = "Road",
+       #y = "Takeover_time") +
+  #theme_minimal()  # change y range
+
+#print(g3_1)
+
+#max_y <- max(df$Takeover_time)
+
+#g3_1 <- ggplot(df, aes(x = factor(condition_road), y = Takeover_time, fill = NDRT)) +
+  #geom_bar(stat = "summary", fun = "mean", position = position_dodge(width = 0.8), width = 0.7) +
+  #geom_errorbar(stat = "summary", fun.data = "mean_se", position = position_dodge(width = 0.8), width = 0.3) +  
+  #geom_text(stat = "summary", fun.data = "mean_se", position = position_dodge(width = 0.8), vjust = -0.5, 
+            #aes(label = sprintf("Mean: %.2f\nSE: %.2f", after_stat(y), after_stat(ymax) - after_stat(y)))) +  
+  
+  #labs(title = "Takeover_time by Condition ",
+      #x = "Road",
+       #y = "Takeover_time") +
+  #theme_minimal() +
+  #scale_y_continuous(limits = c(0, max_y + 0.5))  # è®¾ç½® y è½´è?ƒå›´ï¼Œæ?€å¤§å€¼å??0.5
+
+#print(g3_1)
+
+
+
+gTakeover_time <- ggplot(df, aes(x = factor(condition_road), y = Takeover_time, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  # ä½¿ç”¨??’å½¢?›¾
+  
+  labs(title = "(a) Takeover time by condition ",
+       x = "situational complexity",
+       y = "Takeover time (s)") +
+  theme_minimal()   
+
+
+
+
+print(gTakeover_time)
+ggsave("grapht/Takeover_time.jpg", plot = gTakeover_time, width = 6, height = 4, dpi = 800)
+```
+```{r}
+library(ggplot2)
+library(dplyr)
+
+
+
+gChange_line_time <- ggplot(df, aes(x = factor(condition_road), y = Stable_Time, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  # ä½¿ç”¨??’å½¢?›¾
+  
+  labs(title = "(b) Lane change time by condition ",
+       x = "situational complexity",
+       y = "Lane change time (s)") +
+  theme_minimal()   
+
+print(gChange_line_time)
+
+ggsave("grapht/Stable_Time.jpg", plot = gChange_line_time, width = 6, height = 4, dpi = 800)
+```
+```{r}
+
+library(ggplot2)
+library(patchwork)
+library(gridExtra)
+
+gTakeover_time <- ggplot(df, aes(x = factor(condition_road), y = Takeover_time, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  
+  labs(title = "(a) Takeover time by condition",
+       x = "situational complexity",
+       y = "Takeover time (s)") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
+
+# ???«Ø²Ä¤G??? ggplot ???¦}???¾ã¦rÊ^¤j¤p
+gChange_line_time <- ggplot(df, aes(x = factor(condition_road), y = Stable_Time, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  
+  labs(title = "(b) Lane change time by condition",
+       x = "situational complexity",
+       y = "Lane change time (s)") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
+
+grid.arrange(gTakeover_time, gChange_line_time, ncol = 2)
+combined_plot_time <- grid.arrange(gTakeover_time, gChange_line_time, ncol = 2)
+
+
+
+ggsave("graph/combined_plot_2 .pdf", plot = combined_plot_time , width = 14, height = 7, dpi = 1000)
+
+```
+
+```{r}
+library(ggplot2)
+
+g_Lateral_acceleration <- ggplot(df, aes(x = factor(condition_road), y = Lateral_acceleration, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  # ä½¿ç”¨??’å½¢?›¾
+  
+  labs(title = "(a) Lateral acceleration by condition ",
+       x = "situational complexity",
+       y = "Lateral acceleration") +
+  theme_minimal()   
+
+
+
+print(g_Lateral_acceleration)
+ggsave("grapht/Lateral_acceleration.jpg", plot = g_Lateral_acceleration, width = 6, height = 4, dpi = 800)
+```
+```{r}
+library(ggplot2)
+
+g_Maximum_Deceleration <- ggplot(df, aes(x = factor(condition_road), y = Maximum_Deceleration, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  # ä½¿ç”¨??’å½¢?›¾
+  
+  labs(title = "(b) Longitudinal deceleration by condition ",
+       x = "situational complexity",
+       y = "Longitudinal deceleration") +
+  theme_minimal()   
+
+print(g_Maximum_Deceleration)
+ggsave("grapht/Maximum_Deceleration.jpg", plot = g_Maximum_Deceleration, width = 6, height = 4, dpi = 800)
+
+```
+```{r}
+library(ggplot2)
+
+g_Total_acceleration <- ggplot(df, aes(x = factor(condition_road), y = F_TTL, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  # ä½¿ç”¨??’å½¢?›¾
+  
+  labs(title = "(c) Total acceleration by condition ",
+       x = "situational complexity",
+       y = "Total acceleration") +
+  theme_minimal()   
+
+print(g_Total_acceleration)
+ggsave("grapht/Total_acceleration.jpg", plot = g_Total_acceleration, width = 6, height = 4, dpi = 600)
+```
+```{r}
+library(ggplot2)
+
+
+
+ 
+g_L <- ggplot(df, aes(x = factor(condition_road), y = Large_Steering, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) + 
+  labs(title = "Steering angle by Condition",
+       x = "Situational complexity",
+       y = "Steering angle") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 16),  # ???¾ã??????¦rÊ^¤j¤p
+        axis.title = element_text(size = 14),  # ???¾ã?????????¦rÊ^¤j¤p
+        axis.text = element_text(size = 12))   # ???¾ã?????????¦rÊ^¤j¤p
+
+# ¥´¦L???§Î
+print(g_L)
+
+# «O¦s???¹³¦}¼W¥[¦rÊ^¤j¤p
+ggsave("graph/Large_Steering.pdf", plot = g_L, width = 6, height = 4, dpi = 800)
+```
+
+```{r}
+# merage graph
+library(ggplot2)
+library(patchwork)
+
+g_Lateral_acceleration <- ggplot(df, aes(x = factor(condition_road), y = Lateral_acceleration, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  
+  labs(title = "(a) Lateral acceleration by condition",
+       x = "Situational complexity",
+       y = "Lateral acceleration") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
+
+# ???«Ø²Ä¤G??? ggplot ???¦}???¾ã¦rÊ^¤j¤p©M²¾°£???¨Ò
+g_Maximum_Deceleration <- ggplot(df, aes(x = factor(condition_road), y = Maximum_Deceleration, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  
+  labs(title = "(b) Longitudinal deceleration by condition",
+       x = "Situational complexity",
+       y = "Longitudinal deceleration") +
+  theme_minimal() +
+  theme(legend.position = "none",
+        plot.title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
+
+# ???«Ø²Ä¤T??? ggplot ???¦}???¾ã¦rÊ^¤j¤p©M²¾°£???¨Ò
+g_Total_acceleration <- ggplot(df, aes(x = factor(condition_road), y = F_TTL, fill = NDRT)) +
+  geom_boxplot(position = position_dodge(width = 0.8), width = 0.7) +  
+  labs(title = "(c) Total acceleration by condition",
+       x = "Situational complexity",
+       y = "Total acceleration") +
+  theme_minimal() +
+  theme(
+        plot.title = element_text(size = 16),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 12))
+
+# ???¤T??????¦X¦}¦¨¤@??????
+combined_plot_s <- grid.arrange(g_Lateral_acceleration, g_Maximum_Deceleration, g_Total_acceleration, ncol = 3)
+
+# «O¦s???¹³
+ggsave("graph/combined_plot_s.pdf", plot = combined_plot_s, width = 18, height = 6, dpi = 800)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
